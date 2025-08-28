@@ -1,8 +1,8 @@
 {
-  "Type": "L",
-  "Air temperature [K]": 299.0,
-  "Process temperature [K]": 309.0,
-  "Rotational speed [rpm]": 1450,
-  "Torque [Nm]": 45.0,
-  "Tool wear [min]": 75
+  "Type": "{{ $json["Machine Type"] }}",
+  "Air temperature [K]": {{ $json["Air Temperature (in Kelvin)"] }},
+  "Process temperature [K]": {{ $json["Process Temperature (in Kelvin)"] }},
+  "Rotational speed [rpm]": {{ $json["Rotational Speed (in rpm)"] }},
+  "Torque [Nm]": {{ $json["Torque (in Nm)"] }},
+  "Tool wear [min]": {{ $json["Tool Wear (in minutes)"] }}
 }
