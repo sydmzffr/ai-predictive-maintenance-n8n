@@ -1,0 +1,262 @@
+{
+  "name": "workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9554efce-988d-454c-b0d9-9b0cf6770686",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        720
+      ],
+      "id": "446ffd88-c5a5-49a3-b1c7-49007d2129c7",
+      "name": "Webhook",
+      "webhookId": "9554efce-988d-454c-b0d9-9b0cf6770686"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://f11476a72f1e.ngrok-free.app/predict",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"Type\": \"{{ $json[\"Machine Type\"] }}\",\n  \"Air temperature [K]\": {{ $json[\"Air Temperature (in Kelvin)\"] }},\n  \"Process temperature [K]\": {{ $json[\"Process Temperature (in Kelvin)\"] }},\n  \"Rotational speed [rpm]\": {{ $json[\"Rotational Speed (in rpm)\"] }},\n  \"Torque [Nm]\": {{ $json[\"Torque (in Nm)\"] }},\n  \"Tool wear [min]\": {{ $json[\"Tool Wear (in minutes)\"] }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        -48
+      ],
+      "id": "318dd222-4d24-46dc-a731-6c5e1062ed8a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "formTitle": "Predictive Maintenance AI Analyzer",
+        "formDescription": "Enter the current machine parameters to get an AI-based failure prediction.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Machine Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "L"
+                  },
+                  {
+                    "option": "M"
+                  },
+                  {
+                    "option": "H"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Air Temperature (in Kelvin)",
+              "fieldType": "number",
+              "placeholder": "e.g. 300",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Process Temperature (in Kelvin)",
+              "fieldType": "number",
+              "placeholder": "e.g. 273",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Rotational Speed (in rpm)",
+              "fieldType": "number",
+              "placeholder": "e.g. 3000",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Torque (in Nm)",
+              "fieldType": "number",
+              "placeholder": "e.g. 50",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Tool Wear (in minutes)",
+              "fieldType": "number",
+              "placeholder": "e.g. 210",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        -176
+      ],
+      "id": "1f989f4e-c9cc-4a75-92e8-80a0454a2dd1",
+      "name": "Predictive Maintenance AI Analyzer",
+      "webhookId": "2e2c64e7-908a-4e6a-b06c-156af0c38649"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "578d33ef-1cb3-426d-8532-a8d0cfc500db",
+              "leftValue": "={{ $('HTTP Request').json.is_failure }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        -48
+      ],
+      "id": "036236f1-1651-42ec-b548-4dd6caaa38d3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "symuzaffar22@gmail.com",
+        "subject": "AI Alert 🚨: Machine Failure Forecasted! ",
+        "emailType": "text",
+        "message": "=A potential machine failure has been predicted by the AI model.\n\nPrediction Status: {{ $json.status }}\nConfidence Score: {{ $json.confidence }}%\n\n--- Machine Parameters at Time of Alert ---\n- Machine Type: {{ $json.inputs.Type }}\n- Air Temperature: {{ $json.inputs[\"Air temperature [K]\"] }} K\n- Process Temperature: {{ $json.inputs[\"Process temperature [K]\"] }} K\n- Rotational Speed: {{ $json.inputs[\"Rotational speed [rpm]\"] }} rpm\n- Torque: {{ $json.inputs[\"Torque [Nm]\"] }} Nm\n- Tool Wear: {{ $json.inputs[\"Tool wear [min]\"] }} min\n\nPlease investigate the equipment immediately.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        -192
+      ],
+      "id": "920a1de7-ccb1-4358-9740-cde9e3c6812e",
+      "name": "Send a message",
+      "webhookId": "e7e48645-122e-476a-bea3-8b4860925bdd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "w4kHpqAesijoXQtO",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Flow Description\n**Step 1:** User input operating condition\n\n**Step 2:** Inputs are sent to AI model to be predicted\n\n**Step 3:** If statement. Email will be sent if machine failure is predicted to happen\n\n**Step 4:** Email automation to PIC if failure is predicted.",
+        "height": 288,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "b317b628-de95-407a-819f-e858ebf1692d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Step 1 improvement suggestion\n\nStep 1 can be improvement by using sensors input instead to have a real time monitoring",
+        "height": 272,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "51894637-d223-4850-a314-70c205050884",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Problems encountered\nThe Problem: Cloud vs. Localhost\nThe error connect ECONNREFUSED 127.0.0.1:5000 tells us exactly what's wrong.\n\n**Flask Server:** Is running on your computer at the address 127.0.0.1 (also known as localhost). This is a private address that means \"this machine right here\".\n**n8n Cloud:** Is running on a server somewhere on the internet.\n**The Issue:** When you tell n8n Cloud to connect to 127.0.0.1, it tries to connect to itself, not to your computer. The n8n server has no idea where your personal computer is on the internet. For security reasons, your home/office network firewall also blocks any incoming connections from the outside.\n**The Solution:** Create a Secure Tunnel with ngrok",
+        "height": 288,
+        "width": 640
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        -496
+      ],
+      "typeVersion": 1,
+      "id": "9ecde89f-c41d-49a9-8b2d-6a11f3022800",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Predictive Maintenance AI Analyzer": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8042d390-e49f-4464-8a54-bded4c174bd9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d4caa3c08b2064cebc868a39f2569cdcd553f3fbb8065e7c9e598c6541f853b1"
+  },
+  "id": "9aR4m8Rda4WLllv1",
+  "tags": []
+}
